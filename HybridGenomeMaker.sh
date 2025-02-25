@@ -1,40 +1,25 @@
 #!/bin/bash
 
 
-set -e  # Arrête le script en cas d'erreur
-set -u  # Empêche l'utilisation de variables non définies
 
+set -e  # Exit immediately if a command exits with a non-zero status.
+set -u  # Treat unset variables as an error.
 
 ####
-# Script2
-###
-# Goals: Create FASTA and GTF files from a text file containing a nucleotide sequence and optionally use custom or downloaded files.
-#
-# Inputs:
-# - -sequence_file: Full path to the sequence file.
-# - -fasta: (Optional) Path to a custom .fa file or downloaded from Ensembl.
-# - -gtf: (Optional) Path to a custom .gtf file or downloaded from Ensembl.
-# - -speciesName: Species name (e.g., "Gallus_gallus").
-# - -outDir: Directory where output will be created.
-#
-# Output:
-# - GTF and FASTA files of the nucleotide sequence created in the specified output directory.
-###
+# Script to create FASTA and GTF files for an exogenous sequence,
+# and merge it with a reference genome (downloaded from Ensembl or provided by the user).
+####
 
-
-
-
+# Function to display script usage
 usage() {
-    echo "$(date) usage: sh $0 -sequence_file -speciesName -outDir [-fasta -gtf]
-    -sequence_file :  Full path to the sequence file 
-    -fasta : (Optional) path to custom .fa file
-    -gtf : (Optional) path to custom .gtf file
-    -speciesName : Specie Name
-    -outDir : Directory where reference will be created
-    "
+    echo "$(date) usage: sh $0 -sequence_file -speciesName -outDir [-fasta -gtf]"
+    echo "    -sequence_file : Path to the exogenous sequence file (FASTA or tab-delimited text)"
+    echo "    -speciesName : Name of the species (e.g., 'Gallus_gallus')"
+    echo "    -outDir : Output directory for storing results"
+    echo "    -fasta : (Optional) Path to a custom reference FASTA file"
+    echo "    -gtf : (Optional) Path to a custom reference GTF file"
     exit 1
 }
-
 
 
 
@@ -44,17 +29,17 @@ transform_and_capitalize() {
 }
 
 # Parse command line options
-if [[ $# -lt 6 || $# -gt 10 ]]; then
+if [[ $# -lt 3 || $# -gt 5 ]]; then
     usage
 fi
 
 while [[ -n "$1" ]]; do
     case "$1" in
         -sequence_file) sequence_file="$2"; shift ;;
-        -fasta) customFasta="$2"; shift ;;
-        -gtf) customGtf="$2"; shift ;;
         -speciesName) speciesName="$2"; shift ;;
         -outDir) outDir="$2"; shift ;;
+        -fasta) customFasta="$2"; shift ;;
+        -gtf) customgtf="$2"; shift ;;
         *) echo "$(date) Unknown option: $1"; usage ;;
     esac
     shift
@@ -63,36 +48,37 @@ done
 # Transform and validate species name
 if [[ -n "${speciesName}" ]]; then
     if [[ ! "${speciesName}" =~ ^[a-zA-Z_[:space:]]+$ ]]; then
-        echo "$(date) - Species name must contain only letters or underscores (Mus musculus, mus musculus, mus_musculus)"
+        echo "❌ Error: Species name must contain only letters or underscores."
         exit 1
     else
         speciesName=$(transform_and_capitalize "${speciesName}")
-        echo "$(date) - Species: ${speciesName}"
+        echo "✅ Species: ${speciesName}"
     fi
+fi
+
+
+
+
+
+
+# Validate input sequence file
+if [ ! -f "$sequence_file" ]; then
+    echo "❌ Error: Input file '$sequence_file' not found."
+    exit 1
 fi
 
 # Set output directory
 output_directory="$outDir/${speciesName}"
 
-
-
-
-# Vérifier si le fichier d'entrée existe
-if [ ! -f "$sequence_file" ]; then
-    echo "Erreur : le fichier d'entrée '$sequence_file' est introuvable."
-    exit 1
-fi
-
-
 # Ensure output directory exists
 if [[ -d "$output_directory/custom" || -d "$output_directory/tmp" ]]; then
     rm -rf "$output_directory/custom" "$output_directory/tmp"
     mkdir -p "$output_directory/custom" "$output_directory/tmp/fasta" "$output_directory/tmp/gtf"
+    echo "✅ Output directory set to: $output_directory"
 else 
 
-
-    echo "Output directory '$output_directory/' does not exist. Creating it."
     mkdir -p "$output_directory/custom" "$output_directory/tmp/fasta" "$output_directory/tmp/gtf"
+    echo "✅ Output directory set to: $output_directory"
 fi
 
 
@@ -101,17 +87,17 @@ fasta_tmp_sequence="${output_directory}/tmp/fasta/sequence.fasta"
 gtf_tmp_sequence="${output_directory}/tmp/gtf/sequence.gtf"
 
 
-# Détection du format du fichier (tabulé ou FASTA)
+echo "🔹 Detecting file format..."
 extension="${sequence_file##*.}"
 if [[ "$extension" =~ ^(fa|fasta)$ ]]; then
-    echo "📌 Extension .$extension détectée : FASTA"
+    echo "📌 FASTA format detected."
     format="fasta"
 elif [[ "$extension" =~ ^(txt|tab)$ ]]; then
-    echo "📌 Extension .$extension détectée : tabulé"
+    echo "📌 Tab-delimited format detected."
     format="tab"
 
 else
-    echo "Mauvais format détecté: .$extension"
+    echo "❌ Error: Unsupported file format: .$extension"
     usage
 
 fi
@@ -153,33 +139,31 @@ fi
 
 
 
-# Traitement du fichier d'entrée
+# Process input sequence file
+echo "🔹 Processing input sequence file..."
 if [ "$format" == "tab" ]; then
     while IFS=$'\t' read -r sequence_name sequence; do
-        # Vérifier que la ligne contient bien une séquence valide
         if [[ -z "$sequence_name" || -z "$sequence" ]]; then
-            echo "⚠️ Ligne invalide détectée, elle sera ignorée."
+            echo "⚠️ Skipping invalid line."
             continue
         fi
-        # Ajouter la séquence au fichier FASTA
+
         echo ">$sequence_name" >> "$fasta_tmp_sequence"
         echo "$sequence" >> "$fasta_tmp_sequence"
 
-        # Calculer la longueur de la séquence
         length=${#sequence}
 
-        # Ajouter l'annotation dans le fichier GTF
+
         echo -e "$sequence_name\tunknown\tgene\t1\t$length\t.\t+\t.\tgene_id \"$sequence_name\"; transcript_id \"$sequence_name\"; gene_name \"$sequence_name\"; gene_biotype \"protein_coding\";" >> "$gtf_tmp_sequence"
         echo -e "$sequence_name\tunknown\ttranscript\t1\t$length\t.\t+\t.\tgene_id \"$sequence_name\"; transcript_id \"$sequence_name\"; gene_name \"$sequence_name\"; gene_biotype \"protein_coding\";" >> "$gtf_tmp_sequence"
         echo -e "$sequence_name\tunknown\texon\t1\t$length\t.\t+\t.\tgene_id \"$sequence_name\"; transcript_id \"$sequence_name\"; gene_name \"$sequence_name\"; gene_biotype \"protein_coding\";" >> "$gtf_tmp_sequence"
 
-        echo "✅ Séquence $sequence_name ajoutée."
+        echo "✅ Adding sequence $sequence_name."
     done < "$sequence_file"
 else
 
-# Initialisation des fichiers de sortie
-    > "$fasta_tmp_sequence"  # Crée un fichier vide
-    > "$gtf_tmp_sequence"  # Crée un fichier vide
+    > "$fasta_tmp_sequence"  
+    > "$gtf_tmp_sequence"  
 
     sequence_name=""
     sequence=""
@@ -187,35 +171,26 @@ else
     while IFS= read -r line; do
 
         if [[ ${line} == ">"* ]]; then
-            # Si une séquence précédente existe, l'ajouter
            if [[ -n "$sequence_name" ]]; then
-            # Ajout de la séquence au fichier .fa
             echo ">$sequence_name" >> "$fasta_tmp_sequence"
             echo "$sequence" >> "$fasta_tmp_sequence"
 
-            # Création des annotations GTF
             length=${#sequence}
             echo -e "$sequence_name\tunknown\tgene\t1\t$length\t.\t+\t.\tgene_id \"$sequence_name\"; transcript_id \"$sequence_name\"; gene_name \"$sequence_name\"; gene_biotype \"protein_coding\";" >> "$gtf_tmp_sequence"
             echo -e "$sequence_name\tunknown\ttranscript\t1\t$length\t.\t+\t.\tgene_id \"$sequence_name\"; transcript_id \"$sequence_name\"; gene_name \"$sequence_name\"; gene_biotype \"protein_coding\";" >> "$gtf_tmp_sequence"
             echo -e "$sequence_name\tunknown\texon\t1\t$length\t.\t+\t.\tgene_id \"$sequence_name\"; transcript_id \"$sequence_name\"; gene_name \"$sequence_name\"; gene_biotype \"protein_coding\";" >> "$gtf_tmp_sequence"
         fi
-        # Récupérer le nom de la nouvelle séquence (en retirant le '>' et tout ce qui suit l'espace)
         sequence_name=$(echo "$line" | cut -d ' ' -f 1 | sed 's/>//')
         sequence=""
         else
-        # Ajouter la ligne à la séquence en cours (en supprimant les éventuels retours à la ligne)
             sequence+=$(echo "$line" | tr -d '\n')
         fi
     done < "$sequence_file"
 
-    # Ajouter la dernière séquence
-   # Traitement de la dernière séquence
     if [[ -n "$sequence_name" ]]; then
-        # Ajout de la séquence au fichier .fa
         echo ">$sequence_name" >> "$fasta_tmp_sequence"
         echo "$sequence" >> "$fasta_tmp_sequence"
 
-        # Création des annotations GTF
         length=${#sequence}
 
         echo -e "$sequence_name\tunknown\tgene\t1\t$length\t.\t+\t.\tgene_id \"$sequence_name\"; transcript_id \"$sequence_name\"; gene_name \"$sequence_name\"; gene_biotype \"protein_coding\";" >> "$gtf_tmp_sequence"
@@ -226,8 +201,6 @@ fi
 
 echo "🎉 FASTA and GTF files for the custom sequence successfully generated."
 
-
-echo "🎉 FASTA and GTF files for the custom sequence successfully generated."
 
 # Move and concatenate generated files to custom directory
 if [[ -n "$fasta" ]]; then
@@ -257,3 +230,4 @@ rm -rf "$output_directory/tmp"
 echo "🧹 Temporary files removed."
 
 echo "✅ Script execution completed successfully."
+echo "🎉 Process completed! Output files stored in: $output_directory/custom"
