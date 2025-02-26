@@ -15,8 +15,8 @@ usage() {
     echo "    -sequence_file : Path to the exogenous sequence file (FASTA or tab-delimited text)"
     echo "    -speciesName : Name of the species (e.g., 'Gallus_gallus')"
     echo "    -outDir : Output directory for storing results"
-    echo "    -fasta : (Optional) Path to a custom reference FASTA file"
-    echo "    -gtf : (Optional) Path to a custom reference GTF file"
+    echo "    -fasta : (Optional) Path to your own FASTA file"
+    echo "    -gtf : (Optional) Path to your own GTF file"
     exit 1
 }
 
@@ -211,7 +211,7 @@ echo "🎉 FASTA and GTF files for the custom sequence successfully generated."
 
 # Move and concatenate generated files to custom directory
 if [[ -n "$fasta" ]]; then
-    fasta_basename="$(basename "${fasta%.*}")"
+    fasta_basename="$(basename "${fasta%%.*}")"
     sequence_basename="$(basename "${sequence_file%.*}")"
     output_fasta="$output_directory/custom/${fasta_basename}_${sequence_basename}.fa"
 
@@ -227,7 +227,7 @@ if [[ -n "$fasta" ]]; then
 fi
 
 if [[ -n "$gtf" ]]; then
-    gtf_basename="$(basename "${gtf%.*}")"
+    gtf_basename="$(basename "${gtf%%.*}")"
     output_gtf="$output_directory/custom/${gtf_basename}_${sequence_basename}.gtf"
 
     if [[ "$gtf" == *.gz ]]; then
@@ -242,7 +242,7 @@ if [[ -n "$gtf" ]]; then
 fi
 
 # Clean up temporary directory
-rm -rf "$output_directory/tmp"
+#rm -rf "$output_directory/tmp"
 
 echo "🧹 Temporary files removed."
 
