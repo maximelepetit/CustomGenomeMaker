@@ -36,17 +36,31 @@ chmod +x HybridGenomeMaker.sh
 ```
 ### Options 
 
+| Parameter | Description |
+| ----------- | ----------- |
+| -sequence_file | Path to exogenous sequence file (FASTA or tab-delimited; **required**) |
+| -speciesName | Species name (e.g., "Gallus_gallus"; **required**) | 
+| -outDir | Output directory (**required**) | 
+| -fasta | User reference FASTA file (Optional | 
+| -gtf | User reference GTF file (Optional) | 
+
+
 ## Exogenous sequence Input File Formats
+
 ### Tab-Delimited Format
+
 ```
 GFP    ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAAGTTCAGCGTGTCCGGCGAGGGCGAGGGCGATGCCACCTACGGCAAGCTGACCCTGAAGTTCATCTGCACCACCGGCAAGCTGCCCGTGCCCTGGCCCACCCTCGTGACCACCCTGACCTACGGCGTGCAGTGCTTCAGCCGCTACCCCGACCACATGAAGCAGCACGACTTCTTCAAGTCCGCCATGCCCGAAGGCTACGTCCAGGAGCGCACCATCTTCTTCAAGGACGACGGCAACTACAAGACCCGCGCCGAGGTGAAGTTCGAGGGCGACACCCTGGTGAACCGCATCGAGCTGAAGGGCATCGACTTCAAGGAGGACGGCAACATCCTGGGGCACAAGCTGGAGTACAACTACAACAGCCACAACGTCTATATCATGGCCGACAAGCAGAAGAACGGCATCAAGGTGAACTTCAAGATCCGCCACAACATCGAGGACGGCAGCGTGCAGCTCGCCGACCACTACCAGCAGAACACCCCCATCGGCGACGGCCCCGTGCTGCTGCCCGACAACCACTACCTGAGCACCCAGTCCGCCCTGAGCAAAGACCCCAACGAGAAGCGCGATCACATGGTCCTGCTGGAGTTCGTGACCGCCGCCGGGATCACTCTCGGCATGGACGAGCTGTACAAG
 ```
+
 ### FASTA Format
+
 ```
 >GFP
 ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAAGTTCAGCGTGTCCGGCGAGGGCGAGGGCGATGCCACCTACGGCAAGCTGACCCTGAAGTTCATCTGCACCACCGGCAAGCTGCCCGTGCCCTGGCCCACCCTCGTGACCACCCTGACCTACGGCGTGCAGTGCTTCAGCCGCTACCCCGACCACATGAAGCAGCACGACTTCTTCAAGTCCGCCATGCCCGAAGGCTACGTCCAGGAGCGCACCATCTTCTTCAAGGACGACGGCAACTACAAGACCCGCGCCGAGGTGAAGTTCGAGGGCGACACCCTGGTGAACCGCATCGAGCTGAAGGGCATCGACTTCAAGGAGGACGGCAACATCCTGGGGCACAAGCTGGAGTACAACTACAACAGCCACAACGTCTATATCATGGCCGACAAGCAGAAGAACGGCATCAAGGTGAACTTCAAGATCCGCCACAACATCGAGGACGGCAGCGTGCAGCTCGCCGACCACTACCAGCAGAACACCCCCATCGGCGACGGCCCCGTGCTGCTGCCCGACAACCACTACCTGAGCACCCAGTCCGCCCTGAGCAAAGACCCCAACGAGAAGCGCGATCACATGGTCCTGCTGGAGTTCGTGACCGCCGCCGGGATCACTCTCGGCATGGACGAGCTGTACAAG
 ```
 ## Example
+
 ### Example 1: Using Ensembl References
 
 ```
@@ -62,10 +76,12 @@ ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAA
   -sequence_file construct.fa \
   -speciesName "Xenopus_laevis" \
   -outDir /data/hybrid_genomes \
-  -fasta /path/to/custom_genome.fa \
-  -gtf /path/to/custom_annotation.gtf
+  -fasta /path/to/custom_genome.fa.gz \
+  -gtf /path/to/custom_annotation.gtf.gz
 ```
+
 ## Output Structure
+
 ```
 output_directory/
 └── SPECIES_NAME/
@@ -74,23 +90,22 @@ output_directory/
         └── SPECIES_NAME.annotation.gtf.gz           # Merged GTF
 ```
 
-
-
-
 ## Important Notes
-1 Species Name Format: Use underscores instead of spaces (e.g., Homo_sapiens).
-2 Ensembl Fallback: If primary assembly is unavailable, the script automatically downloads the toplevel genome.
-3 GTF Biotype: Exogenous sequences are annotated as protein_coding by default (modify script if needed).
+1. Species Name Format: Use underscores instead of spaces (e.g., Homo_sapiens).
+2. Ensembl Fallback: If primary assembly is unavailable, the script automatically downloads the toplevel genome.
+3. GTF Biotype: Exogenous sequences are annotated as protein_coding by default (modify script if needed).
 
 
 ## Troubleshooting
 ### Common Issues 
-*Species name must contain only letters or underscores:
+
+* Species name must contain only letters or underscores:
 Ensure no special characters or spaces in -speciesName.
 * Input file not found:
 Use absolute paths for input files (e.g., /home/user/data/sequence.txt).
 * GTF validation errors:
 Ensure custom GTF files follow ENSEMBL GTF format.
+
 ## Credits
 
 Developed by Maxime Lepetit.
