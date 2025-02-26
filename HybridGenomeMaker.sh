@@ -201,27 +201,44 @@ fi
 echo "🎉 FASTA and GTF files for the custom sequence successfully generated."
 
 
+
+
+
+
+
+
+
+
 # Move and concatenate generated files to custom directory
 if [[ -n "$fasta" ]]; then
+    fasta_basename="$(basename "${fasta%.*}")"
+    sequence_basename="$(basename "${sequence_file%.*}")"
+    output_fasta="$output_directory/custom/${fasta_basename}_${sequence_basename}.fa"
+
     if [[ "$fasta" == *.gz ]]; then
-        cp "$fasta" "$output_directory/custom/$(basename "${fasta%.*}")_$(basename "${sequence_file%.*}").fa.gz"
-        gunzip -f "$output_directory/custom/$(basename "${fasta%.*}")_$(basename "${sequence_file%.*}").fa.gz"
+        cp "$fasta" "$output_fasta.gz"
+        gunzip -f "$output_fasta.gz"
     else
-        cp "$fasta" "$output_directory/custom/$(basename "${fasta%.*}")_$(basename "${sequence_file%.*}").fa"
+        cp "$fasta" "$output_fasta"
     fi
-    cat "$fasta_tmp_sequence" >> "$output_directory/custom/$(basename "${fasta%.*}")_$(basename "${sequence_file%.*}").fa"
-    gzip "$output_directory/custom/$(basename "${fasta%.*}")_$(basename "${sequence_file%.*}").fa"
+
+    cat "$fasta_tmp_sequence" >> "$output_fasta"
+    gzip "$output_fasta"
 fi
 
 if [[ -n "$gtf" ]]; then
+    gtf_basename="$(basename "${gtf%.*}")"
+    output_gtf="$output_directory/custom/${gtf_basename}_${sequence_basename}.gtf"
+
     if [[ "$gtf" == *.gz ]]; then
-        cp "$gtf" "$output_directory/custom/$(basename "${gtf%.*}")_$(basename "${sequence_file%.*}").gtf.gz"
-        gunzip -f "$output_directory/custom/$(basename "${gtf%.*}")_$(basename "${sequence_file%.*}").gtf.gz"
+        cp "$gtf" "$output_gtf.gz"
+        gunzip -f "$output_gtf.gz"
     else
-        cp "$gtf" "$output_directory/custom/$(basename "${gtf%.*}")_$(basename "${sequence_file%.*}").gtf
+        cp "$gtf" "$output_gtf"
     fi
-    cat "$gtf_tmp_sequence" >> "$output_directory/custom/$(basename "${gtf%.*}")_$(basename "${sequence_file%.*}").gtf
-    gzip "$output_directory/custom/$(basename "${gtf%.*}")_$(basename "${sequence_file%.*}").gtf
+
+    cat "$gtf_tmp_sequence" >> "$output_gtf"
+    gzip "$output_gtf"
 fi
 
 # Clean up temporary directory
