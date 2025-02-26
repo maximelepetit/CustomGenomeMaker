@@ -82,7 +82,7 @@ fi
 
 
 # Définir les fichiers de sortie
-fasta_tmp_sequence="${output_directory}/tmp/fasta/sequence.fasta"
+fasta_tmp_sequence="${output_directory}/tmp/fasta/sequence.fa"
 gtf_tmp_sequence="${output_directory}/tmp/gtf/sequence.gtf"
 
 
@@ -204,24 +204,24 @@ echo "🎉 FASTA and GTF files for the custom sequence successfully generated."
 # Move and concatenate generated files to custom directory
 if [[ -n "$fasta" ]]; then
     if [[ "$fasta" == *.gz ]]; then
-        cp "$fasta" "$output_directory/custom/$(basename "$fasta" .fa.gz)_$(basename "$sequence_file" .txt).fa.gz"
-        gunzip -f "$output_directory/custom/$(basename "$fasta" .fa.gz)_$(basename "$sequence_file" .txt).fa"
+        cp "$fasta" "$output_directory/custom/$(basename "${fasta%.*}")_$(basename "${sequence_file%.*}").fa.gz"
+        gunzip -f "$output_directory/custom/$(basename "${fasta%.*}")_$(basename "${sequence_file%.*}").fa.gz"
     else
-        cp "$fasta" "$output_directory/custom/${speciesName}_$(basename "$sequence_file" .txt).fa"
+        cp "$fasta" "$output_directory/custom/$(basename "${fasta%.*}")_$(basename "${sequence_file%.*}").fa"
     fi
-    cat "$fasta_tmp_sequence" >> "$output_directory/custom/$(basename "$fasta" .fa.gz)_$(basename "$sequence_file" .txt).fa"
-    gzip "$output_directory/custom/$(basename "$fasta" .fa.gz)_$(basename "$sequence_file" .txt).fa"
+    cat "$fasta_tmp_sequence" >> "$output_directory/custom/$(basename "${fasta%.*}")_$(basename "${sequence_file%.*}").fa"
+    gzip "$output_directory/custom/$(basename "${fasta%.*}")_$(basename "${sequence_file%.*}").fa"
 fi
 
 if [[ -n "$gtf" ]]; then
     if [[ "$gtf" == *.gz ]]; then
-        cp "$gtf" "$output_directory/custom/$(basename "$gtf" .gtf.gz)_$(basename "$sequence_file" .txt).gtf.gz"
-        gunzip -f "$output_directory/custom/$(basename "$gtf" .gtf.gz)_$(basename "$sequence_file" .txt).gtf.gz"
+        cp "$gtf" "$output_directory/custom/$(basename "${gtf%.*}")_$(basename "${sequence_file%.*}").gtf.gz"
+        gunzip -f "$output_directory/custom/$(basename "${gtf%.*}")_$(basename "${sequence_file%.*}").gtf.gz"
     else
-        cp "$gtf" "$output_directory/custom/$(basename "$gtf" .gtf.gz)_$(basename "$sequence_file" .txt).gtf"
+        cp "$gtf" "$output_directory/custom/$(basename "${gtf%.*}")_$(basename "${sequence_file%.*}").gtf
     fi
-    cat "$gtf_tmp_sequence" >> "$output_directory/custom/$(basename "$gtf" .gtf.gz)_$(basename "$sequence_file" .txt).gtf"
-    gzip "$output_directory/custom/$(basename "$gtf" .gtf.gz)_$(basename "$sequence_file" .txt).gtf"
+    cat "$gtf_tmp_sequence" >> "$output_directory/custom/$(basename "${gtf%.*}")_$(basename "${sequence_file%.*}").gtf
+    gzip "$output_directory/custom/$(basename "${gtf%.*}")_$(basename "${sequence_file%.*}").gtf
 fi
 
 # Clean up temporary directory
