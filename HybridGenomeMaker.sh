@@ -3,11 +3,10 @@
 
 
 set -e  # Exit immediately if a command exits with a non-zero status.
-set -u  # Treat unset variables as an error.
 
 ####
 # Script to create FASTA and GTF files for an exogenous sequence,
-# and merge it with a reference genome (downloaded from Ensembl or provided by the user).
+# and merge it with a reference genome (downloaded the latest release from Ensembl or provided by the user).
 ####
 
 # Function to display script usage
@@ -29,7 +28,7 @@ transform_and_capitalize() {
 }
 
 # Parse command line options
-if [[ $# -lt 3 || $# -gt 5 ]]; then
+if [[ $# -lt 6 || $# -gt 10 ]]; then
     usage
 fi
 
@@ -206,12 +205,12 @@ echo "🎉 FASTA and GTF files for the custom sequence successfully generated."
 if [[ -n "$fasta" ]]; then
     if [[ "$fasta" == *.gz ]]; then
         cp "$fasta" "$output_directory/custom/$(basename "$fasta" .fa.gz)_$(basename "$sequence_file" .txt).fa.gz"
-
-        gunzip -f "$output_directory/custom/${speciesName}_$(basename "$sequence_file" .txt).fa.gz"
+        gunzip -f "$output_directory/custom/$(basename "$fasta" .fa.gz)_$(basename "$sequence_file" .txt).fa"
     else
         cp "$fasta" "$output_directory/custom/${speciesName}_$(basename "$sequence_file" .txt).fa"
     fi
-    cat "$fasta_tmp_sequence" >> "$output_directory/custom/${speciesName}_$(basename "$sequence_file" .txt).fa"
+    cat "$fasta_tmp_sequence" >> "$output_directory/custom/$(basename "$fasta" .fa.gz)_$(basename "$sequence_file" .txt).fa"
+    gzip "$output_directory/custom/$(basename "$fasta" .fa.gz)_$(basename "$sequence_file" .txt).fa"
 fi
 
 if [[ -n "$gtf" ]]; then
@@ -222,6 +221,7 @@ if [[ -n "$gtf" ]]; then
         cp "$gtf" "$output_directory/custom/$(basename "$gtf" .gtf.gz)_$(basename "$sequence_file" .txt).gtf"
     fi
     cat "$gtf_tmp_sequence" >> "$output_directory/custom/$(basename "$gtf" .gtf.gz)_$(basename "$sequence_file" .txt).gtf"
+    gzip "$output_directory/custom/$(basename "$gtf" .gtf.gz)_$(basename "$sequence_file" .txt).gtf"
 fi
 
 # Clean up temporary directory
@@ -229,5 +229,4 @@ rm -rf "$output_directory/tmp"
 
 echo "🧹 Temporary files removed."
 
-echo "✅ Script execution completed successfully."
 echo "🎉 Process completed! Output files stored in: $output_directory/custom"
