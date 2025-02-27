@@ -44,9 +44,8 @@ chmod +x HybridGenomeMaker.sh
 | -sequence_file | Path to exogenous sequence file (FASTA or tab-delimited; **required**) |
 | -speciesName | Species name (e.g., "Gallus_gallus"; **required**) | 
 | -outDir | Output directory (**required**) | 
-| -fasta | User reference FASTA file (Optional) | 
-| -gtf | User reference GTF file (Optional) | 
-
+| -fasta | Path to user reference FASTA file (Optional) | 
+| -gtf | Path to user reference GTF file (Optional) | 
 
 ---
 
@@ -85,8 +84,8 @@ ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAA
   -sequence_file "path/to/my_sequence.fa" \
   -speciesName "Xenopus_laevis" \
   -outDir "/path/to/results" \
-  -fasta "/path/to/custom_genome.fa.gz" \
-  -gtf "/path/to/custom_annotation.gtf.gz"
+  -fasta "/path/to/user_genome.fa.gz" \
+  -gtf "/path/to/user_annotation.gtf.gz"
 ```
 ---
 ## Output Structure
