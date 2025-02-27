@@ -34,7 +34,7 @@ chmod +x HybridGenomeMaker.sh
 ```bash
 ./HybridGenomeMaker.sh \
   -sequence_file <EXOGENOUS_SEQUENCE_FILE> \
-  -speciesName "SPECIES_NAME" \
+  -speciesName <SPECIES_NAME> \
   -outDir <OUTPUT_DIRECTORY>
 ```
 ### Options 
