@@ -74,19 +74,19 @@ ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAA
 ### Example 1: Use the automatic download of Ensembl references
 ```
 ./HybridGenomeMaker.sh \
-  -sequence_file my_sequence.txt \
+  -sequence_file "path/to/my_sequence.txt" \
   -speciesName "Gallus_gallus" \
-  -outDir /path/to/results
+  -outDir "/path/to/results"
 
 ```
 ### Example 2: User provided Genome/Annotation
 ```
 ./HybridGenomeMaker.sh \
-  -sequence_file construct.fa \
+  -sequence_file "path/to/my_sequence.fa" \
   -speciesName "Xenopus_laevis" \
-  -outDir /data/hybrid_genomes \
-  -fasta /path/to/custom_genome.fa.gz \
-  -gtf /path/to/custom_annotation.gtf.gz
+  -outDir "/path/to/results" \
+  -fasta "/path/to/custom_genome.fa.gz" \
+  -gtf "/path/to/custom_annotation.gtf.gz"
 ```
 ---
 ## Output Structure
@@ -95,8 +95,15 @@ ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAA
 output_directory/
 └── SPECIES_NAME/
     └── custom/
-        ├── SPECIES_NAME.genome_sequence.fa.gz       # Merged FASTA
-        └── SPECIES_NAME.annotation.gtf.gz           # Merged GTF
+        ├── SPECIES_NAME_my_sequence.fa.gz       # Merged FASTA
+        └── SPECIES_NAME_my_sequence.gtf.gz           # Merged GTF
+```
+It's highly recommend to check outputs FASTA and GTF files.
+
+```
+tail <(zcat /path/to/SPECIES_NAME_my_sequence.gtf.gz )
+tail -n 50 <(zcat /path/to/SPECIES_NAME_my_sequence.fa.gz  )
+
 ```
 ---
 ## Important Notes
@@ -123,7 +130,7 @@ Ensure custom GTF files follow ENSEMBL GTF format.
 
 Developed by Maxime Lepetit.
 
-License: 
+License: GPL-3.0
 
 
 
