@@ -13,7 +13,7 @@ A bash script to merge exogenous sequences (e.g., transgenes, synthetic construc
 ---
 
 ## Prerequisites
-- `bash` (tested on v4.4+)
+- `bash` (tested on v5.0.17)
 - Common CLI tools: `wget`, `gunzip`, `awk`
 - UNIX-like environment (Linux/macOS/WSL)
 
@@ -21,10 +21,13 @@ A bash script to merge exogenous sequences (e.g., transgenes, synthetic construc
 
 ## Installation
 ```bash
-git clone https://github.com/yourusername/hybrid-genome-maker.git
-cd hybrid-genome-maker
+git clone https://github.com/maximelepetit/HybridGenomeMaker.git
+cd HybridGenomeMaker
 chmod +x HybridGenomeMaker.sh
 ```
+
+---
+
 ## Usage
 ### Basic Command
 
@@ -41,8 +44,11 @@ chmod +x HybridGenomeMaker.sh
 | -sequence_file | Path to exogenous sequence file (FASTA or tab-delimited; **required**) |
 | -speciesName | Species name (e.g., "Gallus_gallus"; **required**) | 
 | -outDir | Output directory (**required**) | 
-| -fasta | User reference FASTA file (Optional | 
+| -fasta | User reference FASTA file (Optional) | 
 | -gtf | User reference GTF file (Optional) | 
+
+
+---
 
 
 ## Exogenous sequence Input File Formats
@@ -59,10 +65,13 @@ GFP    ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACG
 >GFP
 ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAAGTTCAGCGTGTCCGGCGAGGGCGAGGGCGATGCCACCTACGGCAAGCTGACCCTGAAGTTCATCTGCACCACCGGCAAGCTGCCCGTGCCCTGGCCCACCCTCGTGACCACCCTGACCTACGGCGTGCAGTGCTTCAGCCGCTACCCCGACCACATGAAGCAGCACGACTTCTTCAAGTCCGCCATGCCCGAAGGCTACGTCCAGGAGCGCACCATCTTCTTCAAGGACGACGGCAACTACAAGACCCGCGCCGAGGTGAAGTTCGAGGGCGACACCCTGGTGAACCGCATCGAGCTGAAGGGCATCGACTTCAAGGAGGACGGCAACATCCTGGGGCACAAGCTGGAGTACAACTACAACAGCCACAACGTCTATATCATGGCCGACAAGCAGAAGAACGGCATCAAGGTGAACTTCAAGATCCGCCACAACATCGAGGACGGCAGCGTGCAGCTCGCCGACCACTACCAGCAGAACACCCCCATCGGCGACGGCCCCGTGCTGCTGCCCGACAACCACTACCTGAGCACCCAGTCCGCCCTGAGCAAAGACCCCAACGAGAAGCGCGATCACATGGTCCTGCTGGAGTTCGTGACCGCCGCCGGGATCACTCTCGGCATGGACGAGCTGTACAAG
 ```
+
+---
+
+
 ## Example
 
-### Example 1: Using Ensembl References
-
+### Example 1: Use the automatic download of Ensembl references
 ```
 ./HybridGenomeMaker.sh \
   -sequence_file my_sequence.txt \
@@ -79,7 +88,7 @@ ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAA
   -fasta /path/to/custom_genome.fa.gz \
   -gtf /path/to/custom_annotation.gtf.gz
 ```
-
+---
 ## Output Structure
 
 ```
@@ -89,16 +98,18 @@ output_directory/
         ├── SPECIES_NAME.genome_sequence.fa.gz       # Merged FASTA
         └── SPECIES_NAME.annotation.gtf.gz           # Merged GTF
 ```
-
+---
 ## Important Notes
 1. Species Name Format: Use underscores instead of spaces (e.g., Homo_sapiens).
 2. Ensembl Fallback: If primary assembly is unavailable, the script automatically downloads the toplevel genome.
 3. GTF Biotype: Exogenous sequences are annotated as protein_coding by default (modify script if needed).
-
+   
+---
 
 ## Troubleshooting
 ### Common Issues 
-
+* If sequence_file is FASTA file, need to be .fa format (not gzipped).
+* If users provides their own FASTA files and GTF files, they need to be gzipped 
 * Species name must contain only letters or underscores:
 Ensure no special characters or spaces in -speciesName.
 * Input file not found:
@@ -106,10 +117,11 @@ Use absolute paths for input files (e.g., /home/user/data/sequence.txt).
 * GTF validation errors:
 Ensure custom GTF files follow ENSEMBL GTF format.
 
+---
+
 ## Credits
 
 Developed by Maxime Lepetit.
-If using Ensembl references, please cite their publication.
 
 License: 
 
