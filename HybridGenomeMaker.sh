@@ -38,7 +38,7 @@ while [[ -n "$1" ]]; do
         -speciesName) speciesName="$2"; shift ;;
         -outDir) outDir="$2"; shift ;;
         -fasta) customFasta="$2"; shift ;;
-        -gtf) customgtf="$2"; shift ;;
+        -gtf) customGtf="$2"; shift ;;
         *) echo "$(date) Unknown option: $1"; usage ;;
     esac
     shift
@@ -51,7 +51,7 @@ if [[ -n "${speciesName}" ]]; then
         exit 1
     else
         speciesName=$(transform_and_capitalize "${speciesName}")
-        echo "✅ Species: ${speciesName}"
+        echo "$(date) Species: ${speciesName}"
     fi
 fi
 
@@ -73,11 +73,11 @@ output_directory="$outDir/${speciesName}"
 if [[ -d "$output_directory/custom" || -d "$output_directory/tmp" ]]; then
     rm -rf "$output_directory/custom" "$output_directory/tmp"
     mkdir -p "$output_directory/custom" "$output_directory/tmp/fasta" "$output_directory/tmp/gtf"
-    echo "✅ Output directory set to: $output_directory"
+    echo "Output directory set to: $output_directory"
 else 
 
     mkdir -p "$output_directory/custom" "$output_directory/tmp/fasta" "$output_directory/tmp/gtf"
-    echo "✅ Output directory set to: $output_directory"
+    echo " Output directory set to: $output_directory"
 fi
 
 
@@ -86,13 +86,12 @@ fasta_tmp_sequence="${output_directory}/tmp/fasta/sequence.fa"
 gtf_tmp_sequence="${output_directory}/tmp/gtf/sequence.gtf"
 
 
-echo "🔹 Detecting file format..."
 extension="${sequence_file##*.}"
 if [[ "$extension" =~ ^(fa|fasta)$ ]]; then
-    echo "📌 FASTA format detected."
+    echo "Input sequence file format : FASTA"
     format="fasta"
 elif [[ "$extension" =~ ^(txt|tab)$ ]]; then
-    echo "📌 Tab-delimited format detected."
+    echo "Input sequence file format : Tab-delimited"
     format="tab"
 
 else
@@ -106,6 +105,11 @@ fi
 if [[ -n "$customFasta" && -n "$customGtf" ]]; then
     fasta="$customFasta"
     gtf="$customGtf"
+
+    echo "User-supplied FASTA file : $fasta"
+    echo "User-supplied GTF file :  $gtf"
+
+
 else
     echo "$(date) - Trying to download files from Ensembl..."
     ensembl_species="${speciesName,,}"
@@ -121,6 +125,7 @@ else
             echo "$(date) - Failed to download DNA file from Ensembl."
             exit 1
         }
+        echo "$(date) - Successfully download DNA toplevel file from Ensembl."
     }
     fasta=$(find "$output_directory/tmp/fasta" -name "$genome_filename" | head -n 1)
 
@@ -139,7 +144,6 @@ fi
 
 
 # Process input sequence file
-echo "🔹 Processing input sequence file..."
 if [ "$format" == "tab" ]; then
     while IFS=$'\t' read -r sequence_name sequence; do
         if [[ -z "$sequence_name" || -z "$sequence" ]]; then
@@ -157,7 +161,7 @@ if [ "$format" == "tab" ]; then
         echo -e "$sequence_name\tunknown\ttranscript\t1\t$length\t.\t+\t.\tgene_id \"$sequence_name\"; transcript_id \"$sequence_name\"; gene_name \"$sequence_name\"; gene_biotype \"protein_coding\";" >> "$gtf_tmp_sequence"
         echo -e "$sequence_name\tunknown\texon\t1\t$length\t.\t+\t.\tgene_id \"$sequence_name\"; transcript_id \"$sequence_name\"; gene_name \"$sequence_name\"; gene_biotype \"protein_coding\";" >> "$gtf_tmp_sequence"
 
-        echo "✅ Adding sequence $sequence_name."
+        echo "Adding sequence $sequence_name."
     done < "$sequence_file"
 else
 
@@ -178,6 +182,7 @@ else
             echo -e "$sequence_name\tunknown\tgene\t1\t$length\t.\t+\t.\tgene_id \"$sequence_name\"; transcript_id \"$sequence_name\"; gene_name \"$sequence_name\"; gene_biotype \"protein_coding\";" >> "$gtf_tmp_sequence"
             echo -e "$sequence_name\tunknown\ttranscript\t1\t$length\t.\t+\t.\tgene_id \"$sequence_name\"; transcript_id \"$sequence_name\"; gene_name \"$sequence_name\"; gene_biotype \"protein_coding\";" >> "$gtf_tmp_sequence"
             echo -e "$sequence_name\tunknown\texon\t1\t$length\t.\t+\t.\tgene_id \"$sequence_name\"; transcript_id \"$sequence_name\"; gene_name \"$sequence_name\"; gene_biotype \"protein_coding\";" >> "$gtf_tmp_sequence"
+            echo "Adding sequence $sequence_name."
         fi
         sequence_name=$(echo "$line" | cut -d ' ' -f 1 | sed 's/>//')
         sequence=""
@@ -195,13 +200,9 @@ else
         echo -e "$sequence_name\tunknown\tgene\t1\t$length\t.\t+\t.\tgene_id \"$sequence_name\"; transcript_id \"$sequence_name\"; gene_name \"$sequence_name\"; gene_biotype \"protein_coding\";" >> "$gtf_tmp_sequence"
         echo -e "$sequence_name\tunknown\ttranscript\t1\t$length\t.\t+\t.\tgene_id \"$sequence_name\"; transcript_id \"$sequence_name\"; gene_name \"$sequence_name\"; gene_biotype \"protein_coding\";" >> "$gtf_tmp_sequence"
         echo -e "$sequence_name\tunknown\texon\t1\t$length\t.\t+\t.\tgene_id \"$sequence_name\"; transcript_id \"$sequence_name\"; gene_name \"$sequence_name\"; gene_biotype \"protein_coding\";" >> "$gtf_tmp_sequence"
+        echo "Adding sequence $sequence_name."
     fi
 fi
-
-echo "🎉 FASTA and GTF files for the custom sequence successfully generated."
-
-
-
 
 
 
@@ -242,8 +243,6 @@ if [[ -n "$gtf" ]]; then
 fi
 
 # Clean up temporary directory
-#rm -rf "$output_directory/tmp"
+rm -rf "$output_directory/tmp"
 
-echo "🧹 Temporary files removed."
-
-echo "🎉 Process completed! Output files stored in: $output_directory/custom"
+echo "$(date) Process completed! Output files stored in: $output_directory/custom"
