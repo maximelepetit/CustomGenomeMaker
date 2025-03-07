@@ -1,4 +1,4 @@
-# HybridGenomeMaker
+# CustomGenomeMaker
 
 A bash script to merge exogenous sequences (e.g., transgenes, synthetic constructs) with a reference genome, generating standardized FASTA and GTF files for downstream analysis.
 
@@ -21,9 +21,9 @@ A bash script to merge exogenous sequences (e.g., transgenes, synthetic construc
 
 ## Installation
 ```bash
-git clone https://github.com/maximelepetit/HybridGenomeMaker.git
-cd HybridGenomeMaker
-chmod +x HybridGenomeMaker.sh
+git clone https://github.com/maximelepetit/CustomGenomeMaker.git
+cd CustomGenomeMaker
+chmod +x CustomGenomeMaker.sh
 ```
 
 ---
@@ -32,7 +32,7 @@ chmod +x HybridGenomeMaker.sh
 ### Basic Command
 
 ```bash
-./HybridGenomeMaker.sh \
+./CustomGenomeMaker.sh \
   -sequence_file <EXOGENOUS_SEQUENCE_FILE> \
   -speciesName <SPECIES_NAME> \
   -outDir <OUTPUT_DIRECTORY>
@@ -72,7 +72,7 @@ ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAA
 
 ### Example 1: Use the automatic download of Ensembl references
 ```
-./HybridGenomeMaker.sh \
+./CustomGenomeMaker.sh \
   -sequence_file "path/to/my_sequence.txt" \
   -speciesName "Gallus_gallus" \
   -outDir "/path/to/results"
@@ -80,7 +80,7 @@ ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAA
 ```
 ### Example 2: User provided Genome/Annotation
 ```
-./HybridGenomeMaker.sh \
+./CustomGenomeMaker.sh \
   -sequence_file "path/to/my_sequence.fa" \
   -speciesName "Xenopus_laevis" \
   -outDir "/path/to/results" \
